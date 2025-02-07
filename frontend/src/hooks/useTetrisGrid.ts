@@ -45,6 +45,7 @@ export function getRandomPiece(): Piece {
 type Action = {
   type: "start" | "drop" | "lock" | "move";
   newGrid?: GridShape;
+  newPiece?: Piece;
 };
 
 function gridReducer(state: GridState, action: Action): GridState {
@@ -65,11 +66,11 @@ function gridReducer(state: GridState, action: Action): GridState {
       break;
     case "lock":
       return {
-        grid: action.newGrid ?? state.grid,
+        grid: action.newGrid!,
         droppingRow: 0,
         droppingCol: 3,
-        droppingPiece: state.droppingPiece,
-        droppingShape: state.droppingShape,
+        droppingPiece: action.newPiece!,
+        droppingShape: SHAPES[action.newPiece!].shape,
       };
     case "move":
       // TODO: Implement move

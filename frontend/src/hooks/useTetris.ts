@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useTetrisGrid } from "./useTetrisGrid";
+import { getRandomPiece, useTetrisGrid } from "./useTetrisGrid";
 import { useInterval } from "./useInterval";
 import { EmptyCell, GridShape, Piece, PieceShape } from "../types";
 
@@ -7,12 +7,14 @@ export function useTetris() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [tickSpeed, setTickSpeed] = useState<number | null>(null);
   const [isCommitting, setIsCommitting] = useState(false);
+  const [upcomingPieces, setUpcomingPieces] = useState<Piece[]>([]);
   const [
     { grid, droppingRow, droppingCol, droppingPiece, droppingShape },
     dispatchGridState,
   ] = useTetrisGrid();
 
   const startGame = useCallback(() => {
+    setUpcomingPieces([getRandomPiece(), getRandomPiece(), getRandomPiece()]);
     setIsPlaying(true);
     setTickSpeed(750);
     dispatchGridState({ type: "start" });
@@ -33,8 +35,12 @@ export function useTetris() {
       droppingCol
     );
 
+    const newUpcomingPieces = structuredClone(upcomingPieces) as Piece[];
+    const newPiece = newUpcomingPieces.pop() as Piece;
+    newUpcomingPieces.unshift(getRandomPiece());
+
     setTickSpeed(750);
-    dispatchGridState({ type: "lock" });
+    dispatchGridState({ type: "lock", newGrid, newPiece });
     setIsCommitting(false);
   }, [
     dispatchGridState,
@@ -43,6 +49,7 @@ export function useTetris() {
     droppingRow,
     droppingShape,
     grid,
+    upcomingPieces,
   ]);
 
   const gameTick = useCallback(() => {

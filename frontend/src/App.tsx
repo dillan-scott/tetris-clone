@@ -1,15 +1,14 @@
 import Grid from "./components/Grid";
-import { EmptyCell } from "./types";
-
-const grid = Array(20)
-  .fill(null)
-  .map(() => Array(10).fill(EmptyCell.EMPTY));
-
+import { useTetris } from "./hooks/useTetris";
 const App = () => {
+  const { grid, startGame, isPlaying } = useTetris();
   return (
     <div className="App">
       <h1>Tetris</h1>
       <Grid currentGrid={grid} />
+      <div className="controls">
+        {isPlaying ? null : <button onClick={startGame}>Start</button>}
+      </div>
     </div>
   );
 };

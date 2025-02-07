@@ -8,3 +8,57 @@ body {
   font-family: "Arial", sans-serif;
   background-color: #f0f0f0;
 }
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.grid {
+  border: 2px solid black;
+  user-select: none;
+  margin: auto;
+  width: fit-content;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 35px;
+  aspect-ratio: 1;
+  border: 1px solid #000000;
+}
+
+.cell.EMPTY {
+  background-color: #afafaf;
+}
+
+.cell.I {
+  background-color: #00f0f0;
+}
+
+.cell.O {
+  background-color: #f0f000;
+}
+
+.cell.T {
+  background-color: #a000f0;
+}
+
+.cell.S {
+  background-color: #00f000;
+}
+
+.cell.Z {
+  background-color: #f00000;
+}
+
+.cell.J {
+  background-color: #0000f0;
+}
+
+.cell.L {
+  background-color: #f0a000;
+}

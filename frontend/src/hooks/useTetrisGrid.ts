@@ -1,5 +1,6 @@
 import { useReducer } from "react";
 import { EmptyCell, GridShape, Piece, PieceShape, SHAPES } from "../types";
+import { hasCollision } from "./useTetris";
 
 export type GridState = {
   grid: GridShape;
@@ -42,10 +43,37 @@ export function getRandomPiece(): Piece {
   ];
 }
 
+function rotateShape(shape: PieceShape, isClockwise: boolean): PieceShape {
+  const n = shape.length;
+  const rotated = Array(n)
+    .fill(null)
+    .map(() => Array(n).fill(false));
+
+  if (isClockwise) {
+    for (let y = 0; y < n; y++) {
+      for (let x = 0; x < n; x++) {
+        rotated[x][n - y - 1] = shape[y][x];
+      }
+    }
+  } else {
+    for (let y = 0; y < n; y++) {
+      for (let x = 0; x < n; x++) {
+        rotated[n - x - 1][y] = shape[y][x];
+      }
+    }
+  }
+
+  return rotated;
+}
+
 type Action = {
   type: "start" | "drop" | "lock" | "move";
   newGrid?: GridShape;
   newPiece?: Piece;
+  isRotating?: boolean;
+  isPressingRight?: boolean;
+  isPressingLeft?: boolean;
+  isClockwise?: boolean;
 };
 
 function gridReducer(state: GridState, action: Action): GridState {
@@ -72,9 +100,24 @@ function gridReducer(state: GridState, action: Action): GridState {
         droppingPiece: action.newPiece!,
         droppingShape: SHAPES[action.newPiece!].shape,
       };
-    case "move":
-      // TODO: Implement move
-      return state;
+    case "move": {
+      const rotatedShape = action.isRotating
+        ? rotateShape(newState.droppingShape, action.isClockwise!)
+        : newState.droppingShape;
+
+      let colOffset = action.isPressingRight ? 1 : 0;
+      colOffset = action.isPressingLeft ? -1 : colOffset;
+
+      const newCol = newState.droppingCol + colOffset;
+
+      if (
+        !hasCollision(newState.grid, rotatedShape, newState.droppingRow, newCol)
+      ) {
+        newState.droppingCol = newCol;
+        newState.droppingShape = rotatedShape;
+      }
+      break;
+    }
     default: {
       const unhandledType: never = action.type;
       throw new Error(`Unhandled action type: ${unhandledType}`);

@@ -185,7 +185,10 @@ export function useTetris() {
     droppingShape.forEach((row: boolean[], rowIndex: number) => {
       row.forEach((isSet: boolean, colIndex: number) => {
         if (isSet) {
-          grid[droppingRow + rowIndex][droppingCol + colIndex] = droppingPiece;
+          const gridRow = droppingRow + rowIndex;
+          if (gridRow >= 0) {
+            grid[gridRow][droppingCol + colIndex] = droppingPiece;
+          }
         }
       });
     });
@@ -194,21 +197,24 @@ export function useTetris() {
 
 export function hasCollision(
   grid: GridShape,
-  currentShape: PieceShape,
-  row: number,
-  col: number
+  droppingShape: PieceShape,
+  droppingRow: number,
+  droppingCol: number
 ): boolean {
   let collision = false;
-  currentShape.forEach((shapeRow: boolean[], rowIndex: number) => {
-    shapeRow.forEach((isSet: boolean, colIndex: number) => {
-      if (
-        isSet &&
-        (row + rowIndex >= grid.length ||
-          col + colIndex >= grid[0].length ||
-          col + colIndex < 0 ||
-          grid[row + rowIndex][col + colIndex] !== EmptyCell.EMPTY)
-      ) {
-        collision = true;
+  droppingShape.forEach((row: boolean[], rowIndex: number) => {
+    row.forEach((isSet: boolean, colIndex: number) => {
+      if (isSet) {
+        const gridRow = droppingRow + rowIndex;
+        if (
+          gridRow >= grid.length ||
+          droppingCol + colIndex < 0 ||
+          droppingCol + colIndex >= grid[0].length ||
+          (gridRow >= 0 &&
+            grid[gridRow][droppingCol + colIndex] !== EmptyCell.EMPTY)
+        ) {
+          collision = true;
+        }
       }
     });
   });

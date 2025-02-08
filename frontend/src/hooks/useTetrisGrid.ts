@@ -32,7 +32,7 @@ export function useTetrisGrid() {
 }
 
 export function getEmptyGrid(): GridShape {
-  return Array(20)
+  return Array(21)
     .fill(null)
     .map(() => Array(10).fill(EmptyCell.EMPTY));
 }
@@ -45,6 +45,9 @@ export function getRandomPiece(): Piece {
 
 function rotateShape(shape: PieceShape, isClockwise: boolean): PieceShape {
   const n = shape.length;
+  if (n !== shape[0].length) {
+    return shape;
+  }
   const rotated = Array(n)
     .fill(null)
     .map(() => Array(n).fill(false));
@@ -93,6 +96,7 @@ function gridReducer(state: GridState, action: Action): GridState {
       newState.droppingRow++;
       break;
     case "lock":
+      console.log("locking");
       return {
         grid: action.newGrid!,
         droppingRow: 0,

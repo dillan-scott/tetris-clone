@@ -5,9 +5,10 @@ interface Props {
 }
 
 function Grid({ currentGrid }: Props) {
+  const visibleGrid = currentGrid.slice(1);
   return (
     <div className="grid">
-      {currentGrid.map((row, rowIndex) => (
+      {visibleGrid.map((row, rowIndex) => (
         <div className="row" key={`${rowIndex}`}>
           {row.map((cell, colIndex) => (
             <Cell key={`${rowIndex}-${colIndex}`} type={cell} />

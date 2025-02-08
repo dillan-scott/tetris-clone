@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getRandomPiece, useTetrisGrid } from "./useTetrisGrid";
 import { useInterval } from "./useInterval";
-import { EmptyCell, GridShape, Piece, PieceShape } from "../types";
+import { EmptyCell, GridShape, Piece, PieceShape, SHAPES } from "../types";
 
 enum TickSpeed {
   Normal = 500,
@@ -10,6 +10,7 @@ enum TickSpeed {
 }
 
 export function useTetris() {
+  const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [tickSpeed, setTickSpeed] = useState<TickSpeed | null>(null);
   const [isCommitting, setIsCommitting] = useState(false);
@@ -41,9 +42,24 @@ export function useTetris() {
       droppingCol
     );
 
-    const newPiece = upcomingPiece;
+    let linesCleared = 0;
+    for (let row = 0; row < newGrid.length; row++) {
+      if (newGrid[row].every((cell) => cell !== EmptyCell.EMPTY)) {
+        linesCleared++;
+        newGrid.splice(row, 1);
+      }
+    }
+
+    const newPiece = upcomingPiece as Piece;
+    if (hasCollision(grid, SHAPES[newPiece].shape, 0, 3)) {
+      setIsPlaying(false);
+      setTickSpeed(null);
+    } else {
+      setTickSpeed(TickSpeed.Normal);
+    }
     setUpcomingPiece(getRandomPiece());
 
+    setScore(score + getPoints(linesCleared));
     setTickSpeed(TickSpeed.Normal);
     setIsCommitting(false);
     dispatchGridState({ type: "lock", newGrid, newPiece: newPiece! });
@@ -54,6 +70,7 @@ export function useTetris() {
     droppingRow,
     droppingShape,
     grid,
+    score,
     upcomingPiece,
   ]);
 
@@ -173,7 +190,7 @@ export function useTetris() {
       droppingCol
     );
   }
-  return { grid: displayGrid, startGame, isPlaying };
+  return { grid: displayGrid, startGame, isPlaying, score, upcomingPiece };
 
   function addPieceToGrid(
     grid: GridShape,
@@ -219,4 +236,21 @@ export function hasCollision(
     });
   });
   return collision;
+}
+
+function getPoints(linesCleared: number) {
+  switch (linesCleared) {
+    case 0:
+      return 0;
+    case 1:
+      return 100;
+    case 2:
+      return 300;
+    case 3:
+      return 500;
+    case 4:
+      return 800;
+    default:
+      throw new Error("Invalid number of lines cleared");
+  }
 }

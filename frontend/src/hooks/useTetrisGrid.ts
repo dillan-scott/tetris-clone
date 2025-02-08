@@ -2,6 +2,9 @@ import { useReducer } from "react";
 import { EmptyCell, GridShape, Piece, PieceShape, SHAPES } from "../types";
 import { hasCollision } from "./useTetris";
 
+const GRID_HEIGHT = 21;
+const GRID_WIDTH = 10;
+
 export type GridState = {
   grid: GridShape;
   droppingRow: number;
@@ -31,10 +34,13 @@ export function useTetrisGrid() {
   return [state, dispatch] as const;
 }
 
-export function getEmptyGrid(): GridShape {
-  return Array(21)
+export function getEmptyGrid(
+  height: number = GRID_HEIGHT,
+  width: number = GRID_WIDTH
+): GridShape {
+  return Array(height)
     .fill(null)
-    .map(() => Array(10).fill(EmptyCell.EMPTY));
+    .map(() => Array(width).fill(EmptyCell.EMPTY));
 }
 
 export function getRandomPiece(): Piece {
@@ -98,7 +104,10 @@ function gridReducer(state: GridState, action: Action): GridState {
     case "lock":
       console.log("locking");
       return {
-        grid: action.newGrid!,
+        grid: [
+          ...getEmptyGrid(GRID_HEIGHT - action.newGrid!.length),
+          ...action.newGrid!,
+        ],
         droppingRow: 0,
         droppingCol: 3,
         droppingPiece: action.newPiece!,
